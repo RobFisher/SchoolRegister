@@ -27,7 +27,7 @@ namespace Register
             }
         }
 
-        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        private void DataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
 
         }
@@ -39,28 +39,28 @@ namespace Register
                 AddExtension = true,
                 DefaultExt = "rsr"
             };
-            sfd.ShowDialog();
 
-            string filename = sfd.FileName;
-
-            using (BinaryWriter bw = new BinaryWriter(File.Open(filename, FileMode.Create)))
+            if( sfd.ShowDialog() == DialogResult.OK )
             {
-                bw.Write(dataGridView1.Columns.Count);
-                bw.Write(dataGridView1.Rows.Count);
-                foreach (DataGridViewRow dgvR in dataGridView1.Rows)
+                using (BinaryWriter bw = new BinaryWriter(File.Open(sfd.FileName, FileMode.Create)))
                 {
-                    for (int j = 0; j < dataGridView1.Columns.Count; ++j)
+                    bw.Write(dataGridView1.Columns.Count);
+                    bw.Write(dataGridView1.Rows.Count);
+                    foreach (DataGridViewRow dgvR in dataGridView1.Rows)
                     {
-                        object val = dgvR.Cells[j].Value;
-                        if (val == null)
+                        for (int j = 0; j < dataGridView1.Columns.Count; ++j)
                         {
-                            bw.Write(false);
-                            bw.Write(false);
-                        }
-                        else
-                        {
-                            bw.Write(true);
-                            bw.Write(val.ToString());
+                            object val = dgvR.Cells[j].Value;
+                            if (val == null)
+                            {
+                                bw.Write(false);
+                                bw.Write(false);
+                            }
+                            else
+                            {
+                                bw.Write(true);
+                                bw.Write(val.ToString());
+                            }
                         }
                     }
                 }
@@ -69,30 +69,31 @@ namespace Register
 
         private void LoadButton_Click(object sender, EventArgs e)
         {
-            System.Windows.Forms.OpenFileDialog ofd = new OpenFileDialog();
-            ofd.DefaultExt = "xml";
-            ofd.ShowDialog();
-
-            dataGridView1.DataSource = null;
-            using (BinaryReader bw = new BinaryReader(File.Open(ofd.FileName, FileMode.Open)))
+            System.Windows.Forms.OpenFileDialog ofd = new OpenFileDialog
             {
-                int n = bw.ReadInt32();
-                int m = bw.ReadInt32();
-                for (int i = 0; i < m; ++i)
+                DefaultExt = "rsr"
+            };
+            if( ofd.ShowDialog() == DialogResult.OK )
+            {
+                dataGridView1.DataSource = null;
+                using (BinaryReader bw = new BinaryReader(File.Open(ofd.FileName, FileMode.Open)))
                 {
-                    dataGridView1.Rows.Add();
-                    for (int j = 0; j < n; ++j)
+                    int n = bw.ReadInt32();
+                    int m = bw.ReadInt32();
+                    for (int i = 0; i < m; ++i)
                     {
-                        if (bw.ReadBoolean())
+                        dataGridView1.Rows.Add();
+                        for (int j = 0; j < n; ++j)
                         {
-                            dataGridView1.Rows[i].Cells[j].Value = bw.ReadString();
+                            if (bw.ReadBoolean())
+                            {
+                                dataGridView1.Rows[i].Cells[j].Value = bw.ReadString();
+                            }
+                            else bw.ReadBoolean();
                         }
-                        else bw.ReadBoolean();
                     }
                 }
             }
-
-
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -102,7 +103,10 @@ namespace Register
 
         private void MoveDown()
         {
-            dataGridView1.CurrentCell = dataGridView1.Rows[dataGridView1.CurrentCell.RowIndex + 1].Cells[0];
+            if (dataGridView1.CurrentCell.RowIndex < dataGridView1.RowCount - 1)
+            {
+                dataGridView1.CurrentCell = dataGridView1.Rows[dataGridView1.CurrentCell.RowIndex + 1].Cells[0];
+            }
         }
 
 
