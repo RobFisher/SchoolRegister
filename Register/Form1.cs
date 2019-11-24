@@ -65,6 +65,7 @@ namespace Register
                     }
                 }
             }
+            sfd.Dispose();
         }
 
         private void LoadButton_Click(object sender, EventArgs e)
@@ -94,6 +95,7 @@ namespace Register
                     }
                 }
             }
+            ofd.Dispose();
         }
 
         private void Form1_Load(object sender, EventArgs e)
